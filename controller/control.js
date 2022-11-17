@@ -31,28 +31,61 @@ exports.loginauth=async(req,res)=>{
     }
   };
 
-  exports.addsalesorder=async(req,res)=>{
-    try{
-        
-        res.status(200).json({
-          status:'SalesOrder Added successfully',
-        })
-       
+  exports.addsalesorder=function (req, res) {
+    try {
+      let invitem = req.body.inventoryEntries;
+      let orderno = req.body.orderNo;
+      let date = req.body.date;
+      let executive = req.body.executive;
+      let user = req.body.username;
+      let party = req.body.partyName;
+      let count = 0;
+
+      for (i = 0; i < invitem.length; i++) {
+        let itemno = invitem[i].sno;
+        let partno = invitem[i].partno;
+        let stk = invitem[i].stockitemname;
+        let qty = invitem[i].qty;
+         con.query("insert into salesorder(orderNo,partyname,date,executive,username,partNo,stockname,quantity,itemno) values (?,?,?,?,?,?,?,?,?)", [orderno, party, date, executive, user, partno, stk, qty, itemno]);
+        count++;
       }
-      catch(err){
-        res.status(404).json({
-            status:'fail',
-            message:err,
+
+      if (count === invitem.length) {
+        res.status(200).json({
+          status: 'valid',
         });
       }
+
+      else {
+        res.status(200).json({
+          status: 'invalid',
+        });
+      }
+    }
+    catch (err) {
+      console.log(err);
+      res.status(404).json({
+        status: 'fail',
+        message: err,
+      });
+    }
   }
 
   exports.addreceipt=async(req,res)=>{
     try{
-        console.log(req.body);
-        con.query("Insert into receipt values (?,?,?,?,?,?,?)",[res.body.receiptNo,res.body.partyname,res.body.amount,res.body.date,res.body.mode,res.body.executive,res.body.username],function(error,result,field){
+         con.query("Select * from receipt where receiptNo=? AND partyName=? AND amount=? AND date=? AND mode=? AND executive=? AND username=?",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
           if(error) throw error;
           if(result.length>0){
+            res.status(200).json({
+              status:'already exists',
+            })
+          }
+        
+        else{
+          con.query("Insert into receipt values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
+          if(error) throw error;
+          console.log(result);
+          if(result.affectedRows===1){
            res.status(200).json({
           status:'valid',
         })
@@ -63,9 +96,10 @@ exports.loginauth=async(req,res)=>{
             })
           }
       });
-       
+    }});
       }
       catch(err){
+        console.log(err);
         res.status(404).json({
             status:'fail',
             message:err,

@@ -1,0 +1,51 @@
+	
+    create database firstdb;
+	use firstdb;
+	create table userdetails(
+	userid int NOT NULL AUTO_INCREMENT primary Key,
+	username varchar(50) unique ,
+	userpass varchar(50)
+	);
+
+	create table receipt(
+	receiptNo int Not null auto_increment Primary Key,
+	partyName varchar(60),
+	amount int,
+	date date,
+	mode varchar(50),
+	executive varchar(50),
+	username varchar(50)
+	);
+
+   
+	create table salesorder(
+	invid int Not Null auto_increment Primary Key,
+	orderNo int,
+	partyname varchar(60),
+	date date,
+	executive varchar(60),
+    username varchar(60),
+	partNo int,
+	stockname varchar(60),
+	quantity int,
+	itemno int
+	);
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
