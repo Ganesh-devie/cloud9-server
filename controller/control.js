@@ -41,6 +41,8 @@ exports.loginauth=async(req,res)=>{
       let party = req.body.partyName;
       let count = 0;
 
+      con.query("insert into voucher(voucherNo,date,vouchertype,partyname,executive,username) values (?,?,?,?,?,?)",[orderno,date,"Sales Order",party,executive,user]);
+
       for (i = 0; i < invitem.length; i++) {
         let itemno = invitem[i].sno;
         let partno = invitem[i].partno;
@@ -73,6 +75,7 @@ exports.loginauth=async(req,res)=>{
 
   exports.addreceipt=async(req,res)=>{
     try{
+         
          con.query("Select * from receipt where receiptNo=? AND partyName=? AND amount=? AND date=? AND mode=? AND executive=? AND username=?",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
           if(error) throw error;
           if(result.length>0){
@@ -82,6 +85,7 @@ exports.loginauth=async(req,res)=>{
           }
         
         else{
+          con.query("insert into voucher(voucherNo,date,vouchertype,partyname,executive,username) values (?,?,?,?,?,?)",[req.body.receiptNo,req.body.date,"Receipt",req.body.partyName,req.body.executive,req.body.username]);
           con.query("Insert into receipt values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
           if(error) throw error;
           console.log(result);
@@ -138,6 +142,33 @@ exports.loginauth=async(req,res)=>{
         });
       }
   }
+
+  exports.getvoucher=async(req,res)=>{
+    try{
+        con.query("Select * from voucher where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
+          if(error) throw error;
+          console.log(result);
+          if(result.length>0){
+           res.status(200).json({
+          voucher:result
+        })
+          }
+          else{
+            res.status(200).json({
+              status:'invalid',
+            })
+          }
+        });
+      
+     
+    }
+    catch(err){
+      res.status(404).json({
+          status:'fail',
+          message:err,
+      });
+    }
+  }
   
   exports.invalid=async(req,res)=>{
       res.status(404).json({
@@ -145,3 +176,4 @@ exports.loginauth=async(req,res)=>{
           message: 'Invalid path',
         });
   };
+

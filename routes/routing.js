@@ -8,7 +8,7 @@ routing.post('/salesorder',control.addsalesorder);
 routing.post('/receipt',control.addreceipt);
 routing.get('/salesorder',control.getsalesorder);
 routing.get('/receipt',control.getreceipt);
-
+routing.get("/voucher/:user/:start/:end",control.getvoucher);
 
 routing.all('*', control.invalid);
 
