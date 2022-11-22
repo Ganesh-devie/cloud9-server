@@ -9,6 +9,8 @@ routing.post('/receipt',control.addreceipt);
 routing.get('/salesorder',control.getsalesorder);
 routing.get('/receipt',control.getreceipt);
 routing.get("/voucher/:user/:start/:end",control.getvoucher);
+routing.get("/extract/:user/:start/:end",control.extractdata);
+
 
 routing.all('*', control.invalid);
 

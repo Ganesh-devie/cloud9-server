@@ -88,7 +88,6 @@ exports.loginauth=async(req,res)=>{
           con.query("insert into voucher(voucherNo,date,vouchertype,partyname,executive,username) values (?,?,?,?,?,?)",[req.body.receiptNo,req.body.date,"Receipt",req.body.partyName,req.body.executive,req.body.username]);
           con.query("Insert into receipt values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
           if(error) throw error;
-          console.log(result);
           if(result.affectedRows===1){
            res.status(200).json({
           status:'valid',
@@ -147,7 +146,6 @@ exports.loginauth=async(req,res)=>{
     try{
         con.query("Select * from voucher where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
           if(error) throw error;
-          console.log(result);
           if(result.length>0){
            res.status(200).json({
           voucher:result
@@ -168,8 +166,48 @@ exports.loginauth=async(req,res)=>{
           message:err,
       });
     }
-  }
+  };
   
+  exports.extractdata=async(req,res)=>{
+    try{
+      let data;
+      con.query("Select * from salesorder where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
+        if(error) throw error;
+        if(result.length>0){
+        data=result;
+        }
+        else{
+          data="empty";
+        }
+       
+      });
+
+      con.query("Select * from receipt where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
+        if(error) throw error;
+        if(result.length>0){
+         res.status(200).json({
+         salesorder:data,
+        receipt:result
+      })
+        }
+        else{
+          res.status(200).json({
+            salesorder:data,
+            receipt:"empty"
+          })
+        }
+      });
+    
+   
+  }
+  catch(err){
+    res.status(404).json({
+        status:'fail',
+        message:err,
+    });
+  }
+  };
+
   exports.invalid=async(req,res)=>{
       res.status(404).json({
           status: 'fail',
