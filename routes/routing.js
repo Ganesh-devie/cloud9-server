@@ -6,8 +6,8 @@ const control = require('../controller/control');
 routing.post('/login', control.loginauth);
 routing.post('/salesorder',control.addsalesorder);
 routing.post('/receipt',control.addreceipt);
-routing.get('/salesorder',control.getsalesorder);
-routing.get('/receipt',control.getreceipt);
+routing.get('/salesorder/:user/:executive',control.getsalesorder);
+routing.get('/receipt/:user/:executive',control.getreceipt);
 routing.get("/voucher/:user/:start/:end",control.getvoucher);
 routing.get("/extract/:user/:start/:end",control.extractdata);
 

@@ -7,7 +7,7 @@ exports.loginauth=async(req,res)=>{
       let name=req.body.username;
       const pass=req.body.password;
       con.query('SELECT * FROM userdetails WHERE username =? AND userpass=?',[name,pass],function(error,result,field){
-        if(error) throw error;
+        if(error) throw err;
         if(result.length>0){
         res.status(200).json({
          status : 'valid',
@@ -77,7 +77,7 @@ exports.loginauth=async(req,res)=>{
     try{
          
          con.query("Select * from receipt where receiptNo=? AND partyName=? AND amount=? AND date=? AND mode=? AND executive=? AND username=?",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
-          if(error) throw error;
+          if(error) throw err;
           if(result.length>0){
             res.status(200).json({
               status:'already exists',
@@ -86,8 +86,8 @@ exports.loginauth=async(req,res)=>{
         
         else{
           con.query("insert into voucher(voucherNo,date,vouchertype,partyname,executive,username) values (?,?,?,?,?,?)",[req.body.receiptNo,req.body.date,"Receipt",req.body.partyName,req.body.executive,req.body.username]);
-          con.query("Insert into receipt values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
-          if(error) throw error;
+          con.query("Insert into receipt (receiptNo,partyname,amount,date,mode,executive,username) values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
+          if(error) throw err;
           if(result.affectedRows===1){
            res.status(200).json({
           status:'valid',
@@ -112,12 +112,23 @@ exports.loginauth=async(req,res)=>{
 
   exports.getsalesorder=async(req,res)=>{
     try{
-        
+      con.query("Select orderNo from salesorder where username=? AND executive=?",[req.params.user,req.params.executive],function(error,result,field){
+       if(error) throw err;
+       if(result.length>0){
+       vchno=result[result.length-1].orderNo
         res.status(200).json({
-          status:'SalesOrder fetched',
+          status:'exist',
+          number:vchno
         })
-       
       }
+      else{
+        res.status(200).json({
+          status:'no'
+                })
+      }
+       
+      })
+    }
       catch(err){
         res.status(404).json({
             status:'fail',
@@ -128,10 +139,23 @@ exports.loginauth=async(req,res)=>{
 
   exports.getreceipt=async(req,res)=>{
     try{
+      con.query("Select receiptNo from receipt where username=? AND executive=?",[req.params.user,req.params.executive],function(error,result,field){
+        if(error) throw err;
+        console.log(result);
+        if(result.length>0){
+        vchno=result[result.length-1].receiptNo
+         res.status(200).json({
+           status:'exist',
+           number:vchno
+         })
+       }
+       else{
+         res.status(200).json({
+           status:'no'
+                 })
+       }
         
-        res.status(200).json({
-          status:'receipt fetched',
-        })
+       })
        
       }
       catch(err){
@@ -145,7 +169,7 @@ exports.loginauth=async(req,res)=>{
   exports.getvoucher=async(req,res)=>{
     try{
         con.query("Select * from voucher where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-          if(error) throw error;
+          if(error) throw err;
           if(result.length>0){
            res.status(200).json({
           voucher:result
@@ -172,7 +196,7 @@ exports.loginauth=async(req,res)=>{
     try{
       let data;
       con.query("Select * from salesorder where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-        if(error) throw error;
+        if(error) throw err;
         if(result.length>0){
         data=result;
         }
@@ -183,7 +207,7 @@ exports.loginauth=async(req,res)=>{
       });
 
       con.query("Select * from receipt where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-        if(error) throw error;
+        if(error) throw err;
         if(result.length>0){
          res.status(200).json({
          salesorder:data,

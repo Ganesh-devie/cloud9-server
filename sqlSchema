@@ -8,8 +8,9 @@
 	);
 
 	create table receipt(
-	receiptNo int Not null auto_increment Primary Key,
+	 invid int Not null auto_increment Primary Key,
 	partyName varchar(60),
+    receiptNo varchar(60),
 	amount int,
 	date date,
 	mode varchar(50),
@@ -20,7 +21,7 @@
    
 	create table salesorder(
 	invid int Not Null auto_increment Primary Key,
-	orderNo int,
+	orderNo varchar(50),
 	partyname varchar(60),
 	date date,
 	executive varchar(60),
@@ -33,15 +34,16 @@
     
      create table voucher(
     vchid int Not Null auto_increment primary Key,
-    voucherNo int,
+    voucherNo varchar(50),
     date date,
     vouchertype varchar(50),
     partyname varchar(50),
-    executive varchar(50)
+    executive varchar(50),
+	username varchar(60)
     );
     
-    
-    
+    use firstdb;
+    insert into userdetails(username,userpass) values ('test','test');
     
     
     
