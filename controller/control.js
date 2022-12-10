@@ -1,6 +1,7 @@
 
 const mysql = require('mysql2');
 const con = require('../model/schema');
+const http = require("http");
 
 exports.loginauth=async(req,res)=>{
     try{
@@ -232,10 +233,20 @@ exports.loginauth=async(req,res)=>{
   }
   };
 
-  exports.invalid=async(req,res)=>{
-      res.status(404).json({
-          status: 'fail',
-          message: 'Invalid path',
+  exports.importdata=async(req,res)=>{
+    console.log(req.body.data);
+      res.status(200).json({
+          status: 'success',
+          message: 'received'
         });
   };
+
+  exports.invalid=async(req,res)=>{
+    res.status(404).json({
+        status: 'fail',
+        message: 'Invalid path',
+      });
+};
+
+  
 
