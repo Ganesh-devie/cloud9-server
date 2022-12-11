@@ -1,14 +1,12 @@
 
-const mysql = require('mysql2');
 const con = require('../model/schema');
-const http = require("http");
 
 exports.loginauth=async(req,res)=>{
     try{
       let name=req.body.username;
       const pass=req.body.password;
       con.query('SELECT * FROM userdetails WHERE username =? AND userpass=?',[name,pass],function(error,result,field){
-        if(error) throw err;
+        if(error) throw error;
         if(result.length>0){
         res.status(200).json({
          status : 'valid',
@@ -24,10 +22,10 @@ exports.loginauth=async(req,res)=>{
       
      
     }
-    catch(err){
+    catch(error){
       res.status(404).json({
           status:'fail',
-          message:err,
+          message:error,
       });
     }
   };
@@ -65,11 +63,10 @@ exports.loginauth=async(req,res)=>{
         });
       }
     }
-    catch (err) {
-      console.log(err);
+    catch (error) {
       res.status(404).json({
         status: 'fail',
-        message: err,
+        message: error,
       });
     }
   }
@@ -78,7 +75,7 @@ exports.loginauth=async(req,res)=>{
     try{
          
          con.query("Select * from receipt where receiptNo=? AND partyName=? AND amount=? AND date=? AND mode=? AND executive=? AND username=?",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
-          if(error) throw err;
+          if(error) throw error;
           if(result.length>0){
             res.status(200).json({
               status:'already exists',
@@ -88,7 +85,7 @@ exports.loginauth=async(req,res)=>{
         else{
           con.query("insert into voucher(voucherNo,date,vouchertype,partyname,executive,username) values (?,?,?,?,?,?)",[req.body.receiptNo,req.body.date,"Receipt",req.body.partyName,req.body.executive,req.body.username]);
           con.query("Insert into receipt (receiptNo,partyname,amount,date,mode,executive,username) values (?,?,?,?,?,?,?)",[req.body.receiptNo,req.body.partyName,req.body.amount,req.body.date,req.body.mode,req.body.executive,req.body.username],function(error,result,field){
-          if(error) throw err;
+          if(error) throw error;
           if(result.affectedRows===1){
            res.status(200).json({
           status:'valid',
@@ -102,11 +99,11 @@ exports.loginauth=async(req,res)=>{
       });
     }});
       }
-      catch(err){
-        console.log(err);
+      catch(error){
+        console.log(error);
         res.status(404).json({
             status:'fail',
-            message:err,
+            message:error,
         });
       }
   }
@@ -114,7 +111,7 @@ exports.loginauth=async(req,res)=>{
   exports.getsalesorder=async(req,res)=>{
     try{
       con.query("Select orderNo from salesorder where username=? AND executive=?",[req.params.user,req.params.executive],function(error,result,field){
-       if(error) throw err;
+       if(error) throw error;
        if(result.length>0){
        vchno=result[result.length-1].orderNo
         res.status(200).json({
@@ -130,10 +127,10 @@ exports.loginauth=async(req,res)=>{
        
       })
     }
-      catch(err){
+      catch(error){
         res.status(404).json({
             status:'fail',
-            message:err,
+            message:error,
         });
       }
   }
@@ -141,7 +138,7 @@ exports.loginauth=async(req,res)=>{
   exports.getreceipt=async(req,res)=>{
     try{
       con.query("Select receiptNo from receipt where username=? AND executive=?",[req.params.user,req.params.executive],function(error,result,field){
-        if(error) throw err;
+        if(error) throw error;
         console.log(result);
         if(result.length>0){
         vchno=result[result.length-1].receiptNo
@@ -159,10 +156,10 @@ exports.loginauth=async(req,res)=>{
        })
        
       }
-      catch(err){
+      catch(error){
         res.status(404).json({
             status:'fail',
-            message:err,
+            message:error,
         });
       }
   }
@@ -170,7 +167,7 @@ exports.loginauth=async(req,res)=>{
   exports.getvoucher=async(req,res)=>{
     try{
         con.query("Select * from voucher where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-          if(error) throw err;
+          if(error) throw error;
           if(result.length>0){
            res.status(200).json({
           voucher:result
@@ -185,10 +182,10 @@ exports.loginauth=async(req,res)=>{
       
      
     }
-    catch(err){
+    catch(error){
       res.status(404).json({
           status:'fail',
-          message:err,
+          message:error,
       });
     }
   };
@@ -197,7 +194,7 @@ exports.loginauth=async(req,res)=>{
     try{
       let data;
       con.query("Select * from salesorder where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-        if(error) throw err;
+        if(error) throw error;
         if(result.length>0){
         data=result;
         }
@@ -208,7 +205,7 @@ exports.loginauth=async(req,res)=>{
       });
 
       con.query("Select * from receipt where username=? AND date BETWEEN ? AND ? ",[req.params.user,req.params.start,req.params.end],function(error,result,field){
-        if(error) throw err;
+        if(error) throw error;
         if(result.length>0){
          res.status(200).json({
          salesorder:data,
@@ -225,22 +222,113 @@ exports.loginauth=async(req,res)=>{
     
    
   }
-  catch(err){
+  catch(error){
     res.status(404).json({
         status:'fail',
-        message:err,
+        message:error,
     });
   }
   };
 
-  exports.importdata=async(req,res)=>{
-    console.log(req.body.data);
+  exports.importdata=function(req,res){
+    try{
+    user=req.body.username;
+    retval=req.body.data;
+    retval = retval.replace('<ENVELOPE>', ''); //Eliminate ENVELOPE TAG
+    retval = retval.replace('</ENVELOPE>', '');
+    retval = retval.replace(/\s+\r\n/g, ''); //remove empty lines
+    retval = retval.replace(/\s+\<F/g, '<F');
+    retval = retval.replace('<F01>', '');
+    retval = retval.replace(/\r\n/g, ''); 
+    retval = retval.replace(/&amp;/g, '&'); //escape ampersand
+    retval = retval.replace(/&lt;/g, '<'); //escape less than
+    retval = retval.replace(/&gt;/g, '>'); //escape greater than
+   collection=retval.split("</F01><F02>");
+   stklst=collection[0].split("</F01><F01>");
+   ledlst=collection[1].split("</F02><F02>");
+     con.query("delete from stocklist where username=?",[user]);
+     con.query("delete from ledgerlist where username=?",[user]);
+   for(i=0;i<stklst.length;i++){
+    con.query("insert into stocklist(username,name) values (?,?)", [user,stklst[i]],function(error,result){
+     if(error) throw error;
+    });
+
+   }
+   
+   for(i=0;i<ledlst.length;i++){
+    if(i==(ledlst.length-1)){
+    ledlst[i]=ledlst[i].replace("</F02>","");
+      }
+        con.query("insert into ledgerlist(username,name) values (?,?)", [user,ledlst[i]],function(error,result){
+     if(error) throw error;
+    });
+
+   }
       res.status(200).json({
-          status: 'success',
-          message: 'received'
+          status: 'Updated Successfully'
         });
+
+      }
+
+      catch(err){
+        res.status(404).json({
+            status:'fail',
+            message:err,
+        });
+      }
+
   };
 
+
+  exports.getparty=async(req,res)=>{
+    try{
+      con.query("Select name from ledgerlist where username=? ",[req.params.user],function(error,result,field){
+        if(error) throw error;
+        if(result.length>0){
+         res.status(200).json({
+        party:result
+      })
+        }
+        else{
+          res.status(200).json({
+            status:'invalid',
+          })
+        }
+      });
+
+    }
+    catch(error){
+      res.status(404).json({
+        status:'fail',
+        message:err,
+    });
+    }
+  };
+
+  exports.getstock=async(req,res)=>{
+    try{
+      con.query("Select name from stocklist where username=? ",[req.params.user],function(error,result,field){
+        if(error) throw error;
+        if(result.length>0){
+         res.status(200).json({
+        stock:result
+      })
+        }
+        else{
+          res.status(200).json({
+            status:'invalid',
+          })
+        }
+      });
+
+    }
+    catch(error){
+      res.status(404).json({
+        status:'fail',
+        message:err,
+    });
+    }
+  }
   exports.invalid=async(req,res)=>{
     res.status(404).json({
         status: 'fail',
