@@ -100,7 +100,6 @@ exports.loginauth=async(req,res)=>{
     }});
       }
       catch(error){
-        console.log(error);
         res.status(404).json({
             status:'fail',
             message:error,
@@ -139,7 +138,7 @@ exports.loginauth=async(req,res)=>{
     try{
       con.query("Select receiptNo from receipt where username=? AND executive=?",[req.params.user,req.params.executive],function(error,result,field){
         if(error) throw error;
-        console.log(result);
+        
         if(result.length>0){
         vchno=result[result.length-1].receiptNo
          res.status(200).json({
@@ -279,6 +278,90 @@ exports.loginauth=async(req,res)=>{
 
   };
 
+  exports.importled=function(req,res){
+    try{
+    user=req.body.username;
+    ledlst=req.body.data;
+    con.query("delete from ledgerlist where username=?",[user]);
+      
+   for(i=0;i<ledlst.length;i++){
+        con.query("insert into ledgerlist(username,name) values (?,?)", [user,ledlst[i]],function(error,result){
+     if(error) throw error;
+    });
+
+   }
+      res.status(200).json({
+          status: 'Updated Successfully'
+        });
+
+      }
+
+      catch(err){
+        res.status(404).json({
+            status:'fail',
+            message:err,
+        });
+      }
+
+  };
+
+  exports.importcc=function(req,res){
+    try{
+    user=req.body.username;
+    cclst=req.body.data;
+    con.query("delete from cclist where username=?",[user]);
+      
+   for(i=0;i<cclst.length;i++){
+        con.query("insert into cclist(username,name) values (?,?)", [user,cclst[i]],function(error,result){
+     if(error) throw error;
+    });
+
+   }
+      res.status(200).json({
+          status: 'Updated Successfully'
+        });
+
+      }
+
+      catch(err){
+        res.status(404).json({
+            status:'fail',
+            message:err,
+        });
+      }
+
+  };
+
+  exports.importstock=function(req,res){
+    try{
+    user=req.body.username;
+    stklst=req.body.data;
+    if(req.body.initial=="yes"){
+    con.query("delete from stocklist where username=?",[user]);
+  }
+  
+   for(i=0;i<stklst.length;i++){
+        data=stklst[i].split("</");
+        con.query("insert into stocklist(username,name,partno) values (?,?,?)", [user,data[0],data[1]],function(error,result){
+     if(error) throw error;
+     
+    });
+
+   }
+      res.status(200).json({
+          status: 'Updated Successfully'
+        });
+
+      }
+
+      catch(err){
+        res.status(404).json({
+            status:'fail',
+            message:err,
+        });
+      }
+
+  };
 
   exports.getparty=async(req,res)=>{
     try{
