@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyparser.json());
 //app.use(myReqLogger);
 app.use(cors(coroption));
-app.use('/', route);
+app.use('/api', route);
 app.use(bodyparser.json({ limit: 1000000000 }));
 app.use(bodyparser.urlencoded({ limit: 1000000000,  extended: true, parameterLimit: 1000000000 }));
 

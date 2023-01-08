@@ -390,7 +390,7 @@ exports.loginauth=async(req,res)=>{
 
   exports.getstock=async(req,res)=>{
     try{
-      con.query("Select name from stocklist where username=? ",[req.params.user],function(error,result,field){
+      con.query("Select name,partno from stocklist where username=? ",[req.params.user],function(error,result,field){
         if(error) throw error;
         if(result.length>0){
          res.status(200).json({
