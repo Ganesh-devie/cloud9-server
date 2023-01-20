@@ -16,10 +16,7 @@ routing.post("/importcc",control.importcc);
 routing.post("/importstock",control.importstock);
 routing.get("/party/:user",control.getparty);
 routing.get("/stock/:user",control.getstock);
-
-
-
-
+routing.get("/cc/:user",control.getcc);
 
 routing.all('*', control.invalid);
 

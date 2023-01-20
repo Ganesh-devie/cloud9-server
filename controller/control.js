@@ -412,6 +412,31 @@ exports.loginauth=async(req,res)=>{
     });
     }
   }
+
+  exports.getcc=async(req,res)=>{
+    try{
+      con.query("Select name from cclist where username=? ",[req.params.user],function(error,result,field){
+        if(error) throw error;
+        if(result.length>0){
+         res.status(200).json({
+        cc:result
+      })
+        }
+        else{
+          res.status(200).json({
+            status:'invalid',
+          })
+        }
+      });
+
+    }
+    catch(error){
+      res.status(404).json({
+        status:'fail',
+        message:err,
+    });
+    }
+  }
   exports.invalid=async(req,res)=>{
     res.status(404).json({
         status: 'fail',
